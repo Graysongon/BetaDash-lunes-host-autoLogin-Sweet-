@@ -4,6 +4,26 @@ import fs from 'fs';
 
 const LOGIN_URL = 'https://betadash.lunes.host';
 
+const i = setInterval(()=>{
+if (window.turnstile) {
+    clearInterval(i)
+    window.turnstile.render = (a,b) => {
+    let p = {
+        type: "TurnstileTaskProxyless",
+        websiteKey: b.sitekey,
+        websiteURL: window.location.href,
+        data: b.cData,
+        pagedata: b.chlPageData,
+        action: b.action,
+        userAgent: navigator.userAgent
+    }
+    console.log(JSON.stringify(p))
+    window.tsCallback = b.callback
+    return 'foo'
+    }
+}
+},10)  
+
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
   try {
