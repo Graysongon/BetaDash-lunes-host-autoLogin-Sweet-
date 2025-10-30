@@ -3,61 +3,7 @@ import { chromium } from '@playwright/test';
 import fs from 'fs';
 
 const LOGIN_URL = 'https://betadash.lunes.host/login';
-//使用 cloudscraper 库
-import cloudscraper
 
-# 创建 scraper 对象
-scraper = cloudscraper.create_scraper(
-    browser={
-        'browser': 'firefox',
-        'platform': 'windows',
-        'mobile': False
-    }
-)
-
-url = "https://betadash.lunes.host/login"
-
-try:
-    # 发送请求（自动处理验证）
-    response = scraper.get(url)
-    
-    # 检查响应状态
-    if response.status_code == 200:
-        print("成功绕过验证！")
-        print(response.text[:500])  # 打印部分内容
-    else:
-        print("请求失败，状态码:", response.status_code)
-
-except Exception as e:
-    print("发生错误:", str(e))
-//Selenium 自动化浏览器
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
-
-options = webdriver.ChromeOptions()
-# options.add_argument("--headless")  # 无头模式
-driver = webdriver.Chrome(options=options)
-
-url = "https://betadash.lunes.host/login"
-
-try:
-    driver.get(url)
-    
-    # 等待 Cloudflare 验证完成（最长30秒）
-    WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.TAG_NAME, "body"))
-    )
-    
-    print("页面标题:", driver.title)
-    print("页面内容:", driver.page_source[:500])
-    
-except Exception as e:
-    print("发生错误:", str(e))
-finally:
-    driver.quit()
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
   try {
@@ -132,6 +78,61 @@ async function main() {
       process.exitCode = 2;
       return;
     }
+      //使用 cloudscraper 库
+import cloudscraper
+
+# 创建 scraper 对象
+scraper = cloudscraper.create_scraper(
+    browser={
+        'browser': 'firefox',
+        'platform': 'windows',
+        'mobile': False
+    }
+)
+
+url = "https://betadash.lunes.host/login"
+
+try:
+    # 发送请求（自动处理验证）
+    response = scraper.get(url)
+    
+    # 检查响应状态
+    if response.status_code == 200:
+        print("成功绕过验证！")
+        print(response.text[:500])  # 打印部分内容
+    else:
+        print("请求失败，状态码:", response.status_code)
+
+except Exception as e:
+    print("发生错误:", str(e))
+//Selenium 自动化浏览器
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+options = webdriver.ChromeOptions()
+# options.add_argument("--headless")  # 无头模式
+driver = webdriver.Chrome(options=options)
+
+url = "https://betadash.lunes.host/login"
+
+try:
+    driver.get(url)
+    
+    # 等待 Cloudflare 验证完成（最长30秒）
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.TAG_NAME, "body"))
+    )
+    
+    print("页面标题:", driver.title)
+    print("页面内容:", driver.page_source[:500])
+    
+except Exception as e:
+    print("发生错误:", str(e))
+finally:
+    driver.quit()
 
     // 2) 输入用户名密码
     const userInput = page.locator('input[name="username"]');
