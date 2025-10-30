@@ -77,35 +77,7 @@ async function main() {
       await notifyTelegram({ ok: false, stage: '打开登录页', msg: '检测到人机验证页面', screenshotPath: sp });
       process.exitCode = 2;
       return;
-    }
-      //使用 cloudscraper 库
-import cloudscraper
-
-# 创建 scraper 对象
-scraper = cloudscraper.create_scraper(
-    browser={
-        'browser': 'firefox',
-        'platform': 'windows',
-        'mobile': False
-    }
-)
-
-url = "https://betadash.lunes.host/login"
-
-try:
-    # 发送请求（自动处理验证）
-    response = scraper.get(url)
-    
-    # 检查响应状态
-    if response.status_code == 200:
-        print("成功绕过验证！")
-        print(response.text[:500])  # 打印部分内容
-    else:
-        print("请求失败，状态码:", response.status_code)
-
-except Exception as e:
-    print("发生错误:", str(e))
-//Selenium 自动化浏览器
+      //Selenium 自动化浏览器
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -134,6 +106,7 @@ except Exception as e:
 finally:
     driver.quit()
 
+    }
     // 2) 输入用户名密码
     const userInput = page.locator('input[name="username"]');
     const passInput = page.locator('input[name="password"]');
