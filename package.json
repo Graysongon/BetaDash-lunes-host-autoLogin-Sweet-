@@ -1,15 +1,4 @@
 {
-    "errorId": 0,
-    "status": "ready",
-    "solution": {
-        "token": "0.zrSnRHO7h0HwSjSCU8oyzbjEtD8p.d62306d4ee00c77dda697f959ebbd7bd97",
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-    },
-    "cost": "0.00145",
-    "ip": "1.2.3.4",
-    "createTime": 1692863536,
-    "endTime": 1692863556,
-    "solveCount": 1
   "name": "lunes-auto-login",
   "version": "1.0.0",
   "private": true,
