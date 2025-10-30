@@ -78,52 +78,83 @@ async function main() {
       process.exitCode = 2;
       return;
     }
-      async function solveTurnstile(page, sitekey, pageUrl) {
-  const apiKey = process.env.CAPTCHA_API_KEY;
-  if (!apiKey) throw new Error('CAPTCHA_API_KEY 未设置');
+      // 引入依赖
+const puppeteer = require("puppeteer");
+const axios = require("axios");
 
-  const submitTaskRes = await axios.post('http://2captcha.com/in.php', {
-    key: apiKey,
-    method: 'turnstile',
-    sitekey: sitekey,
-    pageurl: pageUrl,
-    json: 1
+// 2Captcha API 密钥
+const API_KEY = "566974d80640b34d3110aab0d4c5af33";
+
+// 目标页面
+const PAGE_URL = "https://www.google.com/recaptcha/api2/demo";
+
+(async () => {
+  // 启动浏览器
+  const browser = await puppeteer.launch({
+    headless: false, // 可改为 true 以隐藏浏览器
   });
+  const page = await browser.newPage();
+  await page.goto(PAGE_URL, { waitUntil: "networkidle2" });
 
-  if (submitTaskRes.data.status !== 1) {
-    throw new Error(`提交任务失败: ${submitTaskRes.data.request}`);
-  }
+  // 获取 reCAPTCHA sitekey
+  const siteKey = await page.$eval(".g-recaptcha", el =>
+    el.getAttribute("data-sitekey")
+  );
+  console.log("✅ Site Key:", siteKey);
 
-  const taskId = submitTaskRes.data.request;
+  // 向 2Captcha 提交任务
+  const captchaRequest = await axios.post(
+    "http://2captcha.com/in.php",
+    new URLSearchParams({
+      key: API_KEY,
+      method: "userrecaptcha",
+      googlekey: siteKey,
+      pageurl: PAGE_URL,
+      json: 1,
+    })
+  );
 
-  let result;
-  for (let i = 0; i < 24; i++) {
-    await page.waitForTimeout(5000);
-    const getResultRes = await axios.get(`http://2captcha.com/res.php?key=${apiKey}&action=get&id=${taskId}&json=1`);
-    if (getResultRes.data.status === 1) {
-      result = getResultRes.data.request;
+  const requestId = captchaRequest.data.request;
+  console.log("📨 Captcha Request ID:", requestId);
+
+  // 轮询获取结果
+  let token = null;
+  console.log("⏳ 等待 2Captcha 解析中...");
+
+  while (!token) {
+    await new Promise(r => setTimeout(r, 5000));
+    const res = await axios.get("http://2captcha.com/res.php", {
+      params: {
+        key: API_KEY,
+        action: "get",
+        id: requestId,
+        json: 1,
+      },
+    });
+
+    if (res.data.status === 1) {
+      token = res.data.request;
+      console.log("✅ Captcha Solved!");
       break;
+    } else {
+      console.log("❕ 等待中...");
     }
-    if (getResultRes.data.request === 'CAPCHA_NOT_READY') {
-      continue;
-    }
-    throw new Error(`获取结果失败: ${getResultRes.data.request}`);
   }
 
-  if (!result) throw new Error('Turnstile 解决超时');
+  // 注入 token 并提交表单
+  await page.evaluate(token => {
+    document.getElementById("g-recaptcha-response").innerHTML = token;
+  }, token);
 
-  await page.evaluate((token) => {
-    const textarea = document.querySelector('textarea[name="cf-turnstile-response"]');
-    if (textarea) {
-      textarea.value = token;
-    } else {
-      if (window.turnstileCallback) {
-        window.turnstileCallback({ token });
-      }
-    }
-  }, result);
+  await page.waitForTimeout(2000);
+  await page.click("#recaptcha-demo-submit");
 
-  console.log('Turnstile 已解决');
+  console.log("🚀 已提交表单。");
+  await page.waitForTimeout(5000);
+
+  await browser.close();
+})();
+
 }
     // 2) 输入用户名密码
     const userInput = page.locator('input[name="username"]');
