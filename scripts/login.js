@@ -2,7 +2,7 @@
 import { chromium } from '@playwright/test';
 import fs from 'fs';
 
-const LOGIN_URL = 'https://betadash.lunes.host/login';
+const LOGIN_URL = ' https://webcache.googleusercontent.com/search?q=cache:https://betadash.lunes.host/login';
 
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
