@@ -2,7 +2,7 @@
 import { chromium } from '@playwright/test';
 import fs from 'fs';
 
-const LOGIN_URL = 'https://betadash.lunes.host/login';
+const LOGIN_URL = 'https://betadash.lunes.host';
 
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
@@ -68,35 +68,6 @@ async function main() {
   try {
     // 1) 打开登录页
     await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    
-      //Selenium 自动化浏览器
-      from selenium import webdriver
-      from selenium.webdriver.common.by import By
-      from selenium.webdriver.support.ui import WebDriverWait
-      from selenium.webdriver.support import expected_conditions as EC
-      import time
-
-      options = webdriver.ChromeOptions()
-      # options.add_argument("--headless")  # 无头模式
-      driver = webdriver.Chrome(options=options)
-
-      url = "https://betadash.lunes.host/login"
-
-      try:
-          driver.get(url)
-    
-          # 等待 Cloudflare 验证完成（最长30秒）
-          WebDriverWait(driver, 30).until(
-          EC.presence_of_element_located((By.TAG_NAME, "body"))
-          )
-    
-          print("页面标题:", driver.title)
-          print("页面内容:", driver.page_source[:500])
-    
-          except Exception as e:
-          print("发生错误:", str(e))
-          finally:
-          driver.quit()
           // 检查人机验证
     const humanCheckText = await page.locator('text=/Verify you are human|需要验证|安全检查|review the security/i').first();
     if (await humanCheckText.count()) {
