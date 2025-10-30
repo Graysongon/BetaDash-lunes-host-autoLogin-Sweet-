@@ -36,8 +36,9 @@ jobs:
         run: |
           node -v
           npm -v
-          npm run login
+          npm install cloudscraper
           pip install cloudscraper
+          npm run login
         continue-on-error: true
 
       - name: Archive screenshots & logs
