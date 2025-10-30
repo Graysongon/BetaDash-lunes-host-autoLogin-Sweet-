@@ -4,25 +4,6 @@ import fs from 'fs';
 
 const LOGIN_URL = 'https://betadash.lunes.host';
 
-const i = setInterval(()=>{
-if (window.turnstile) {
-    clearInterval(i)
-    window.turnstile.render = (a,b) => {
-    let p = {
-        type: "TurnstileTaskProxyless",
-        websiteKey: b.sitekey,
-        websiteURL: window.location.href,
-        data: b.cData,
-        pagedata: b.chlPageData,
-        action: b.action,
-        userAgent: navigator.userAgent
-    }
-    console.log(JSON.stringify(p))
-    window.tsCallback = b.callback
-    return 'foo'
-    }
-}
-},10)  
 
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
@@ -97,6 +78,53 @@ async function main() {
       process.exitCode = 2;
       return;
     }
+      async function solveTurnstile(page, sitekey, pageUrl) {
+  const apiKey = process.env.CAPTCHA_API_KEY;
+  if (!apiKey) throw new Error('CAPTCHA_API_KEY 未设置');
+
+  const submitTaskRes = await axios.post('http://2captcha.com/in.php', {
+    key: apiKey,
+    method: 'turnstile',
+    sitekey: sitekey,
+    pageurl: pageUrl,
+    json: 1
+  });
+
+  if (submitTaskRes.data.status !== 1) {
+    throw new Error(`提交任务失败: ${submitTaskRes.data.request}`);
+  }
+
+  const taskId = submitTaskRes.data.request;
+
+  let result;
+  for (let i = 0; i < 24; i++) {
+    await page.waitForTimeout(5000);
+    const getResultRes = await axios.get(`http://2captcha.com/res.php?key=${apiKey}&action=get&id=${taskId}&json=1`);
+    if (getResultRes.data.status === 1) {
+      result = getResultRes.data.request;
+      break;
+    }
+    if (getResultRes.data.request === 'CAPCHA_NOT_READY') {
+      continue;
+    }
+    throw new Error(`获取结果失败: ${getResultRes.data.request}`);
+  }
+
+  if (!result) throw new Error('Turnstile 解决超时');
+
+  await page.evaluate((token) => {
+    const textarea = document.querySelector('textarea[name="cf-turnstile-response"]');
+    if (textarea) {
+      textarea.value = token;
+    } else {
+      if (window.turnstileCallback) {
+        window.turnstileCallback({ token });
+      }
+    }
+  }, result);
+
+  console.log('Turnstile 已解决');
+}
     // 2) 输入用户名密码
     const userInput = page.locator('input[name="username"]');
     const passInput = page.locator('input[name="password"]');
