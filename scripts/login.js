@@ -3,6 +3,7 @@ import { chromium } from '@playwright/test';
 import fs from 'fs';
 
 const LOGIN_URL = 'https://betadash.lunes.host/login';
+//使用 cloudscraper 库
 import cloudscraper
 
 # 创建 scraper 对象
@@ -29,6 +30,34 @@ try:
 
 except Exception as e:
     print("发生错误:", str(e))
+//Selenium 自动化浏览器
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+options = webdriver.ChromeOptions()
+# options.add_argument("--headless")  # 无头模式
+driver = webdriver.Chrome(options=options)
+
+url = "https://betadash.lunes.host/login"
+
+try:
+    driver.get(url)
+    
+    # 等待 Cloudflare 验证完成（最长30秒）
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.TAG_NAME, "body"))
+    )
+    
+    print("页面标题:", driver.title)
+    print("页面内容:", driver.page_source[:500])
+    
+except Exception as e:
+    print("发生错误:", str(e))
+finally:
+    driver.quit()
 // Telegram 通知
 async function notifyTelegram({ ok, stage, msg, screenshotPath }) {
   try {
